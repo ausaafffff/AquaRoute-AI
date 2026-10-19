@@ -1,8 +1,18 @@
-data/raw/
-data/processed/
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Notebooks and osmnx
+.ipynb_checkpoints/
+cache/
+
+# Data: ignore contents, keep folders and labels
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
 *.graphml
 *.csv
-.ipynb_checkpoints/
-__pycache__/
-.env
-venv/
+!data/labels/*.csv
