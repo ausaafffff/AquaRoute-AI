@@ -11,8 +11,8 @@ cache/
 # Data: ignore contents, keep folders and labels
 data/raw/*
 data/processed/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
 *.graphml
 *.csv
 !data/labels/*.csv
+!data/labels/*
+
