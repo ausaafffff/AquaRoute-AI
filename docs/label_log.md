@@ -12,6 +12,15 @@
 2022-09-15/16 | searched EN+HI (3 queries) | storm confirmed (ANI, BOOM, ETV Bharat, Patrika, Aaj Tak); no place-level article yet; 2021 HT article rejected (wrong year) | pending; label date provisional 2022-09-15
 
 ## Data notes (for the limitations section)
-- 2022-09 storm: news IMD 24-h figure about 155-160 mm; dataset rain_24h about 96-98 mm at the matching hour; likely gridded-data smoothing of point extremes (cause not confirmed)
-- Rain index timezone: UNRESOLVED (index has no tz label); decides label date for 2022-09 (15 Sep if IST, 16 Sep if UTC)
-- Negatives are unconfirmed: absence of a search result is not absence of flooding
+- Rain index timezone: IST (Asia/Kolkata), confirmed in notebook 01 download requests
+- 2022-09 storm: news IMD 24-h figure ~155-160 mm; dataset rain_24h = 97.8 mm at 08:00 IST 16 Sep (matches the Met window); gap ~60 mm, cause unconfirmed (likely gridded-data smoothing)
+ 2022-09-15 | TOI 16 Sep 2022 (waterlogging on Thu 15 Sep, 8 localities); Amar Ujala 15 Sep 2022 (event, verified); ANI/BOOM/ETV/Patrika (event) | added as positive (8 new places; Park Road high: submerged knee-deep; others moderate) | label date 2022-09-15 (core hours 19-23 IST); rain gap: news IMD ~155-160 mm vs dataset rain_24h 97.8 mm; places not in standard set of nine
+India Today 16 Sep 2022 14:20 IST (verified from page text; Friday, 2022 confirmed): several areas waterlogged, airport road flooded (not used as a row: vague location), Dilkusha wall collapse (not waterlogging); timings (police at site ~3 am, schools shut 4 am) consistent with IST rain data, supports label date 2022-09-15
+2022-09-15 | TOI 16 Sep 2022 (waterlogging on Thu 15 Sep, 8 localities); Amar Ujala 15 Sep 2022 (event, verified); India Today 16 Sep 2022 (event, verified from page text) | added as positive (8 new places; Park Road high: knee-deep, wading to SPM Hospital; others moderate) | label date 2022-09-15 (core hours 19-23 IST); coordinates from Gemini (Maps-grounded), pins spot-checked, Park Road not yet compared with SPM Hospital; several places share a 0.01 degree cell, deduplicate when building the training table; rain gap: news IMD ~155-160 mm vs dataset rain_24h 97.8 mm
+2026-10-27 | CSV duplicates found (30 Jul x3, 15 Sep x4, from re-run cells); removed, 15 Sep re-added once with a guard | rows 98 -> 48 -> 56
+
+## Limitations & Methodological Constraints
+
+1. **Unconfirmed Negatives:** Heavy-rain negative days are defined by the absence of digital news reports (English and Hindi searches) exceeding threshold criteria. While backed by high precipitation metrics (`rain_1h` / `rain_72h`), localized minor waterlogging uncaptured by media may occasionally be mislabeled as true negatives.
+2. **Cell Overlap & Spatial Granularity:** Multiple reports from severe storms (e.g., 15 Sep 2022) occasionally map to identical spatial grid cells. Resolution was handled by keeping the highest severity rating per cell per date.
+3. **Precipitation Data Gap:** Modeled rainfall features reflect available gridded/station data interpolation, which can show variance against official Meteorological Department local station readings.
