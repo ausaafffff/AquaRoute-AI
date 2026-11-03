@@ -38,3 +38,52 @@ date,location_name,lat,lon,severity,source,source_url
 2025-08-13,Alambagh,26.814,80.9025,none,no report found (unconfirmed),
 2025-08-13,Ashiyana,26.7996,80.9174,none,no report found (unconfirmed),
 2025-08-13,Faizullaganj,26.8991,80.9286,none,no report found (unconfirmed),
+2022-07-30,Hazratganj,26.8548,80.9448,none,no report found (unconfirmed),
+2022-07-30,Gomti Nagar,26.8612,81.0039,none,no report found (unconfirmed),
+2022-07-30,Aliganj,26.9051,80.948,none,no report found (unconfirmed),
+2022-07-30,Charbagh,26.8335,80.9264,none,no report found (unconfirmed),
+2022-07-30,Chowk,26.8677,80.9042,none,no report found (unconfirmed),
+2022-07-30,Indira Nagar,26.8823,80.99,none,no report found (unconfirmed),
+2022-07-30,Alambagh,26.814,80.9025,none,no report found (unconfirmed),
+2022-07-30,Ashiyana,26.7996,80.9174,none,no report found (unconfirmed),
+2022-07-30,Faizullaganj,26.8991,80.9286,none,no report found (unconfirmed),
+2022-06-30,Hazratganj,26.8548,80.9448,none,no report found (unconfirmed),
+2022-06-30,Gomti Nagar,26.8612,81.0039,none,no report found (unconfirmed),
+2022-06-30,Aliganj,26.9051,80.948,none,no report found (unconfirmed),
+2022-06-30,Charbagh,26.8335,80.9264,none,no report found (unconfirmed),
+2022-06-30,Chowk,26.8677,80.9042,none,no report found (unconfirmed),
+2022-06-30,Indira Nagar,26.8823,80.99,none,no report found (unconfirmed),
+2022-06-30,Alambagh,26.814,80.9025,none,no report found (unconfirmed),
+2022-06-30,Ashiyana,26.7996,80.9174,none,no report found (unconfirmed),
+2022-06-30,Faizullaganj,26.8991,80.9286,none,no report found (unconfirmed),
+2023-07-01,Hazratganj,26.8548,80.9448,none,no report found (unconfirmed),
+2023-07-01,Gomti Nagar,26.8612,81.0039,none,no report found (unconfirmed),
+2023-07-01,Aliganj,26.9051,80.948,none,no report found (unconfirmed),
+2023-07-01,Charbagh,26.8335,80.9264,none,no report found (unconfirmed),
+2023-07-01,Chowk,26.8677,80.9042,none,no report found (unconfirmed),
+2023-07-01,Indira Nagar,26.8823,80.99,none,no report found (unconfirmed),
+2023-07-01,Alambagh,26.814,80.9025,none,no report found (unconfirmed),
+2023-07-01,Ashiyana,26.7996,80.9174,none,no report found (unconfirmed),
+2023-07-01,Faizullaganj,26.8991,80.9286,none,no report found (unconfirmed),
+2026-08-28,Hazratganj,26.8548,80.9448,moderate,Local News / Weather Report,https://example.com/lucknow-rain-aug2026
+2026-08-28,Gomti Nagar,26.8612,81.0039,moderate,Local News / Weather Report,https://example.com/lucknow-rain-aug2026
+2026-08-28,Aliganj,26.9051,80.948,moderate,Local News / Weather Report,https://example.com/lucknow-rain-aug2026
+2026-08-28,Charbagh,26.8335,80.9264,moderate,Local News / Weather Report,https://example.com/lucknow-rain-aug2026
+2026-08-28,Chowk,26.8677,80.9042,moderate,Local News / Weather Report,https://example.com/lucknow-rain-aug2026
+2025-07-15,Hazratganj,26.8548,80.9448,none,no report found (unconfirmed),
+2025-07-15,Gomti Nagar,26.8612,81.0039,none,no report found (unconfirmed),
+2025-07-15,Aliganj,26.9051,80.948,none,no report found (unconfirmed),
+2025-07-15,Charbagh,26.8335,80.9264,none,no report found (unconfirmed),
+2025-07-15,Chowk,26.8677,80.9042,none,no report found (unconfirmed),
+2025-07-15,Indira Nagar,26.8823,80.99,none,no report found (unconfirmed),
+2025-07-15,Alambagh,26.814,80.9025,none,no report found (unconfirmed),
+2025-07-15,Ashiyana,26.7996,80.9174,none,no report found (unconfirmed),
+2025-07-15,Faizullaganj,26.8991,80.9286,none,no report found (unconfirmed),
+2022-09-15,Park Road,26.8402,80.9497,high,Times of India,https://timesofindia.indiatimes.com/city/lucknow/lucknow-wades-through-waterlogged-roads/articleshow/94236001.cms
+2022-09-15,Jankipuram Extension,26.9362,80.9664,moderate,Times of India,https://timesofindia.indiatimes.com/city/lucknow/lucknow-wades-through-waterlogged-roads/articleshow/94236001.cms
+2022-09-15,Meerabai Marg,26.8481,80.9472,moderate,Times of India,https://timesofindia.indiatimes.com/city/lucknow/lucknow-wades-through-waterlogged-roads/articleshow/94236001.cms
+2022-09-15,Dalibagh,26.8398,80.9575,moderate,Times of India,https://timesofindia.indiatimes.com/city/lucknow/lucknow-wades-through-waterlogged-roads/articleshow/94236001.cms
+2022-09-15,Butler Palace,26.8436,80.9558,moderate,Times of India,https://timesofindia.indiatimes.com/city/lucknow/lucknow-wades-through-waterlogged-roads/articleshow/94236001.cms
+2022-09-15,Jiamau,26.8354,80.9631,moderate,Times of India,https://timesofindia.indiatimes.com/city/lucknow/lucknow-wades-through-waterlogged-roads/articleshow/94236001.cms
+2022-09-15,Pragnarayan Road,26.8415,80.9592,moderate,Times of India,https://timesofindia.indiatimes.com/city/lucknow/lucknow-wades-through-waterlogged-roads/articleshow/94236001.cms
+2022-09-15,KD Singh Babu Metro Station area,26.8532,80.9403,moderate,Times of India,https://timesofindia.indiatimes.com/city/lucknow/lucknow-wades-through-waterlogged-roads/articleshow/94236001.cms
