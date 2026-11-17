@@ -19,6 +19,7 @@ AquaRoute-AI is a prototype that explores how rainfall, terrain and reported wat
 - [Development and tests](#development-and-tests)
 - [Limitations](#limitations)
 - [License](#license)
+- [About Authors](#about-authors)
 
 ## What it does
 
@@ -213,6 +214,6 @@ The repository also includes `tests/test_model.py`, a FastAPI-based API prototyp
 
 This project is distributed under the [MIT License](LICENSE).
 
-## Project context
+## About Authors
 
-AquaRoute-AI is developed as a University IBM Project exploring AI and geospatial methods for urban mobility and waterlogging risk awareness. Contributions that improve data provenance, validation, model reproducibility and road-network routing are welcome.
+Ausaaf Siddiqui & Pawan Pandey are the Final Year BCA (Data Science & Artificial Intelligence) students from Shri Ramswaroop Memorial University. We two are passionate learners who's always curious about how the world of tech works and we never hesitate to deep dive into the world of AI.That curiosity and passion led us to build AquaRoute-AI, the most personal and passionate project of our student lives.
