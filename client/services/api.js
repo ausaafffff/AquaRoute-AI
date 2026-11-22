@@ -1,6 +1,7 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+// client/services/api.js
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Expanded Lucknow locations directly from historical waterlogging dataset & transport hubs
+// 22+ Core Key Lucknow Locations
 export const LUCKNOW_LOCATIONS = [
   { id: 'alambagh', name: 'Alambagh', lat: 26.8140, lng: 80.9025 },
   { id: 'aliganj', name: 'Aliganj', lat: 26.9051, lng: 80.9480 },
@@ -26,9 +27,8 @@ export const LUCKNOW_LOCATIONS = [
   { id: 'airport', name: 'CCS International Airport', lat: 26.7606, lng: 80.8893 }
 ];
 
-// Waterlogged Hazard Zones compiled from Times of India & NewsDrum reports
 export const WATERLOGGED_ZONES = [
-  { id: 1, name: 'Hazratganj Lowpoint', lat: 26.8548, lng: 80.9448, severity: 'high', waterDepthCm: 48, radius: 450, source: 'NewsDrum (Sep 2026 Deluge)' },
+  { id: 1, name: 'Hazratganj Lowpoint', lat: 26.8548, lng: 80.9448, severity: 'high', waterDepthCm: 48, radius: 450, source: 'NewsDrum' },
   { id: 2, name: 'Gomti Nagar Drainage Basin', lat: 26.8612, lng: 81.0039, severity: 'high', waterDepthCm: 50, radius: 480, source: 'NewsDrum / TOI' },
   { id: 3, name: 'Aliganj Underpass', lat: 26.9051, lng: 80.9480, severity: 'high', waterDepthCm: 45, radius: 420, source: 'NewsDrum' },
   { id: 4, name: 'Charbagh Station Road', lat: 26.8335, lng: 80.9264, severity: 'high', waterDepthCm: 55, radius: 500, source: 'NewsDrum / TOI' },
@@ -48,7 +48,6 @@ export const WATERLOGGED_ZONES = [
   { id: 18, name: 'KD Singh Babu Metro Area', lat: 26.8532, lng: 80.9403, severity: 'medium', waterDepthCm: 30, radius: 320, source: 'Times of India' }
 ];
 
-// Haversine distance in kilometers
 function calculateHaversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -64,32 +63,85 @@ function calculateHaversineKm(lat1, lon1, lat2, lon2) {
 }
 
 /**
+ * Live search across Lucknow using OpenStreetMap + Preset Hubs
+ */
+export async function searchLucknowPlaces(query) {
+  if (!query || query.trim().length < 2) return [];
+  const clean = query.trim().toLowerCase();
+
+  // 1. Instant local matches
+  const local = LUCKNOW_LOCATIONS.filter((l) =>
+    l.name.toLowerCase().includes(clean)
+  ).map((l) => ({ ...l, type: 'preset' }));
+
+  // 2. Query OpenStreetMap Nominatim for any street, hospital, mall or landmark in Lucknow
+  if (clean.length >= 3) {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        query + ', Lucknow, Uttar Pradesh'
+      )}&countrycodes=in&limit=6&addressdetails=1`;
+      
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      if (res.ok) {
+        const data = await res.json();
+        const osmResults = data.map((item, idx) => {
+          const parts = item.display_name.split(',');
+          const mainName = parts[0].trim();
+          const subName = parts.slice(1, 3).join(',').trim();
+          return {
+            id: `osm_${item.place_id || idx}`,
+            name: mainName,
+            subName: subName || 'Lucknow',
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+            elevation: 118.0,
+            type: 'osm'
+          };
+        });
+
+        // Merge without duplicate coordinates
+        const combined = [...local];
+        for (const osm of osmResults) {
+          if (!combined.some((c) => Math.abs(c.lat - osm.lat) < 0.004 && Math.abs(c.lng - osm.lng) < 0.004)) {
+            combined.push(osm);
+          }
+        }
+        return combined;
+      }
+    } catch {
+      // Fallback to local on network interruption
+    }
+  }
+
+  return local;
+}
+
+/**
  * Fetch route and waterlogging prediction
  */
-export async function getSafeRoute({ startId, endId, rainfallMm = 45, customEnd = null }) {
+export async function getSafeRoute({ startId, endId, rainfallMm = 45, customStart = null, customEnd = null }) {
   try {
     const res = await fetch(`${API_BASE_URL}/route`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ startId, endId, rainfallMm, customEnd }),
+      body: JSON.stringify({ startId, endId, rainfallMm, customStart, customEnd }),
     });
 
     if (res.ok) {
       return await res.json();
     }
   } catch {
-    console.warn('Backend API not reachable. Using local dynamic routing engine.');
+    console.warn('Backend API not reachable. Using client routing engine.');
   }
 
-  // Resolve locations
-  const startLoc = LUCKNOW_LOCATIONS.find((l) => l.id === startId) || LUCKNOW_LOCATIONS[0];
+  // Resolve start & end points (supports presets, custom geocoded pins, and map clicks)
+  const startLoc = customStart || (LUCKNOW_LOCATIONS.find((l) => l.id === startId) || LUCKNOW_LOCATIONS[0]);
   const endLoc = customEnd || (LUCKNOW_LOCATIONS.find((l) => l.id === endId) || LUCKNOW_LOCATIONS[1]);
 
   const straightDistKm = calculateHaversineKm(startLoc.lat, startLoc.lng, endLoc.lat, endLoc.lng);
   const defaultDistanceKm = Number((Math.max(1.2, straightDistKm * 1.32)).toFixed(1));
   const safeDistanceKm = Number((defaultDistanceKm * 1.18).toFixed(1));
 
-  // Risk and flood penalties
   const floodRiskFactor = rainfallMm / 100;
   const floodedCount = Math.max(0, Math.min(6, Math.round(floodRiskFactor * (defaultDistanceKm / 2.2))));
   const maxWaterDepth = Math.round(floodRiskFactor * 55);
@@ -99,7 +151,6 @@ export async function getSafeRoute({ startId, endId, rainfallMm = 45, customEnd 
   const defaultEtaMins = normalTravelMins + waterDelayMins;
   const safeEtaMins = Math.round((safeDistanceKm / 38) * 60) + 3;
 
-  // Paths
   const midLat = (startLoc.lat + endLoc.lat) / 2;
   const midLng = (startLoc.lng + endLoc.lng) / 2;
   const offset = (endLoc.lng - startLoc.lng) >= 0 ? 0.012 : -0.012;

@@ -1,6 +1,7 @@
 // client/src/App.jsx
 import React, { useState, useEffect } from 'react';
 import MapView from './components/Map';
+import LocationSearch from './components/LocationSearch';
 import { LUCKNOW_LOCATIONS, getSafeRoute } from '../services/api';
 import {
   Navigation,
@@ -20,22 +21,21 @@ import './App.css';
 
 export default function App() {
   const [backendOnline, setBackendOnline] = useState(false);
-  const [startId, setStartId] = useState('charbagh');
-  const [endId, setEndId] = useState('gomti_nagar');
+  const [startPoint, setStartPoint] = useState(LUCKNOW_LOCATIONS[5]); // Charbagh
+  const [endPoint, setEndPoint] = useState(LUCKNOW_LOCATIONS[9]);     // Gomti Nagar
   const [rainIntensity, setRainIntensity] = useState(55);
   const [showZones, setShowZones] = useState(true);
   const [loading, setLoading] = useState(false);
   const [routeData, setRouteData] = useState(null);
-  const [customEndCoords, setCustomEndCoords] = useState(null);
 
-  async function handleCalculateRoute(overrideEnd = null) {
+  async function handleCalculateRoute(overrideStart = null, overrideEnd = null) {
     setLoading(true);
     try {
-      const destination = overrideEnd || customEndCoords;
+      const source = overrideStart || startPoint;
+      const destination = overrideEnd || endPoint;
       const data = await getSafeRoute({
-        startId,
-        endId,
         rainfallMm: rainIntensity,
+        customStart: source,
         customEnd: destination
       });
       setRouteData(data);
@@ -49,30 +49,39 @@ export default function App() {
   useEffect(() => {
     handleCalculateRoute();
 
-    // Check live connection to Python Flask backend
-    fetch('http://localhost:5000/api/health')
+    fetch('https://aquaroute-ai.onrender.com/api/health')
       .then((res) => {
         if (res.ok) setBackendOnline(true);
       })
-      .catch(() => setBackendOnline(false));
+      .catch(() => {
+        fetch('http://localhost:5000/api/health')
+          .then((r) => r.ok && setBackendOnline(true))
+          .catch(() => setBackendOnline(false));
+      });
   }, []);
 
+  // Map click sets custom Destination
   const handleMapClick = (latlng) => {
     const customPoint = {
-      name: `Pin (${latlng.lat.toFixed(4)}, ${latlng.lng.toFixed(4)})`,
+      id: `map_${Date.now()}`,
+      name: `Dropped Pin (${latlng.lat.toFixed(4)}, ${latlng.lng.toFixed(4)})`,
       lat: latlng.lat,
       lng: latlng.lng,
       elevation: 118.0
     };
-    setCustomEndCoords(customPoint);
-    handleCalculateRoute(customPoint);
+    setEndPoint(customPoint);
+    handleCalculateRoute(startPoint, customPoint);
   };
 
-  const applyPreset = (start, end) => {
-    setCustomEndCoords(null);
-    setStartId(start);
-    setEndId(end);
-    getSafeRoute({ startId: start, endId: end, rainfallMm: rainIntensity }).then(setRouteData);
+  // Quick Preset Scenarios
+  const applyPreset = (startId, endId) => {
+    const start = LUCKNOW_LOCATIONS.find((l) => l.id === startId);
+    const end = LUCKNOW_LOCATIONS.find((l) => l.id === endId);
+    if (start && end) {
+      setStartPoint(start);
+      setEndPoint(end);
+      handleCalculateRoute(start, end);
+    }
   };
 
   return (
@@ -80,7 +89,6 @@ export default function App() {
       <div className="ambient-glow top-left"></div>
       <div className="ambient-glow bottom-right"></div>
 
-      {/* Top Futuristic Navigation Bar */}
       <header className="navbar">
         <div className="logo-group">
           <div className="logo-icon-box">
@@ -107,7 +115,6 @@ export default function App() {
             <span>Rain Sensor: <strong>{rainIntensity} mm/h</strong></span>
           </div>
 
-          {/* GitHub Repo Button with universal inline SVG */}
           <a
             href="https://github.com/ausaafffff/AquaRoute-AI"
             target="_blank"
@@ -123,10 +130,8 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Body */}
       <div className="main-content">
         <aside className="sidebar">
-          {/* Quick Presets */}
           <div className="quick-presets">
             <span className="preset-label">Quick Scenarios:</span>
             <div className="preset-chips">
@@ -142,40 +147,27 @@ export default function App() {
               <h3>Mission Parameters</h3>
             </div>
 
-            <div className="input-group-modern">
-              <label>Starting Point (Origin)</label>
-              <div className="select-container">
-                <select value={startId} onChange={(e) => setStartId(e.target.value)}>
-                  {LUCKNOW_LOCATIONS.map((loc) => (
-                    <option key={loc.id} value={loc.id} disabled={loc.id === endId}>
-                      {loc.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            {/* Live Search for Origin */}
+            <LocationSearch
+              label="Starting Point (Origin)"
+              placeholder="Search origin address, street, or hotspot..."
+              value={startPoint}
+              onSelect={(item) => {
+                setStartPoint(item);
+                handleCalculateRoute(item, endPoint);
+              }}
+            />
 
-            <div className="input-group-modern">
-              <label>
-                Destination Point {customEndCoords && <span className="custom-indicator">(Map Dropped)</span>}
-              </label>
-              <div className="select-container">
-                <select
-                  value={customEndCoords ? 'custom' : endId}
-                  onChange={(e) => {
-                    setCustomEndCoords(null);
-                    setEndId(e.target.value);
-                  }}
-                >
-                  {customEndCoords && <option value="custom">{customEndCoords.name}</option>}
-                  {LUCKNOW_LOCATIONS.map((loc) => (
-                    <option key={loc.id} value={loc.id} disabled={loc.id === startId}>
-                      {loc.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            {/* Live Search for Destination */}
+            <LocationSearch
+              label="Destination Point"
+              placeholder="Search destination, mall, landmark, or street..."
+              value={endPoint}
+              onSelect={(item) => {
+                setEndPoint(item);
+                handleCalculateRoute(startPoint, item);
+              }}
+            />
 
             <div className="rain-slider-container">
               <div className="slider-header-flex">
