@@ -99,6 +99,17 @@ def predict_waterlogging_risk(elevation, rainfall_mm):
     risk_score = (rainfall_mm * 0.75) + elevation_penalty
     return min(1.0, max(0.05, risk_score / 100.0))
 
+@app.route('/', methods=['GET'])
+def root():
+    return jsonify({
+        'status': 'online',
+        'message': 'AquaRoute-AI Backend is running',
+        'endpoints': {
+            'health': '/api/health',
+            'locations': '/api/locations',
+            'route': '/api/route'
+        }
+    })
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'online', 'service': 'AquaRoute-AI Backend'})
@@ -182,5 +193,6 @@ def calculate_route():
     })
 
 if __name__ == '__main__':
-    print("AquaRoute AI Server running at http://localhost:5000")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    print(f" AquaRoute AI Server running on port {port}")
+    app.run(host='0.0.0.0', port=port)
