@@ -5,7 +5,320 @@ University IBM Project
 
 AquaRoute-AI is a prototype that explores how rainfall, terrain and reported waterlogging locations can inform safer urban travel. It pairs a Python API with a React map-based client and a collection of geospatial and machine-learning notebooks. The current demo focuses on selected locations in Lucknow.
 
-> **Important:** This is an academic prototype, not an emergency service or a live navigation system. Its risk estimates and suggested paths are approximations, may rely on static or illustrative data, and should not be used as the sole basis for travel decisions. Check current local advisories and road conditions before travelling.
+# AquaRoute-AI
+
+**AI-assisted waterlogging risk estimation and route planning for Lucknow, India**  
+University IBM Project
+
+AquaRoute-AI is a prototype that combines rainfall, elevation and reported waterlogging data to estimate route risk and suggest safer alternatives. It uses a Python API, a React/Leaflet frontend, geospatial utilities and machine-learning experiments.
+
+The current client supports live location searching, custom map pins and rain-intensity simulation. It remains a demonstration system rather than an emergency or live navigation tool.
+
+> **Important:** 
+> - This is an academic prototype, not an emergency service or a live navigation system. Its risk estimates and suggested paths are approximations, may rely on static or illustrative data, and should not be used as the sole basis for travel decisions. Check current local advisories and road conditions before travelling.
+> - Risk estimates and route paths are approximations based on static data, heuristic calculations and an optional model artifact. Verify current local advisories and road conditions before travelling.
+
+## Features
+
+- Search for origin and destination locations in Lucknow.
+- Query OpenStreetMap/Nominatim for streets, landmarks, hospitals and other places.
+- Select locations from the built-in Lucknow hotspot catalogue.
+- Place a custom destination directly on the interactive map.
+- Adjust simulated rainfall intensity.
+- Compare a direct route with a generated flood-aware alternative.
+- Visualize reported hazard zones and dynamically sized risk circles.
+- Automatically fall back to client-side route estimation when the backend is unavailable.
+- View estimated distance, travel time, flooded segments and water depth.
+
+## Location Search
+
+The frontend provides separate autocomplete search controls for the origin and destination.
+
+### Search behavior
+
+- Searches are debounced before API requests.
+- Matching entries from the local Lucknow location catalogue appear immediately.
+- With at least three characters, the service queries OpenStreetMap's Nominatim service for additional results across Lucknow.
+- Duplicate coordinates are removed before combining local and external results.
+- Results can include streets, landmarks, malls, hospitals and local points of interest.
+- If Nominatim is unavailable or a network request fails, local results remain available.
+- Blank search fields display a short list of popular local hotspots.
+- Clicking the map sets a custom destination pin.
+
+Live search results are converted into coordinates with an assumed elevation of `118.0 m`. Because Nominatim data is external, its availability and accuracy depend on the public search service.
+
+## Technology
+
+### Frontend
+
+- React
+- Vite
+- React-Leaflet
+- Leaflet
+- Lucide React
+- Nominatim/OpenStreetMap search
+- OpenStreetMap map tiles
+- Axios and native `fetch`
+
+### Backend
+
+- Python
+- Flask
+- Flask-CORS
+- NumPy
+- Joblib
+- Gunicorn
+
+### Data and Machine Learning
+
+- Jupyter Notebook
+- pandas
+- scikit-learn
+- OSMnx
+- NetworkX
+- GeoPandas
+- Random Forest model experiments
+
+Python dependencies are listed in [`requirements.txt`](requirements.txt), and frontend dependencies are in [`client/package.json`](client/package.json).
+
+## Repository Layout
+
+```text
+.
+├── app.py                         # Flask API and route-risk estimation
+├── client/
+│   ├── services/api.js            # Location search, API requests and local fallback
+│   ├── public/                    # Static public assets
+│   └── src/
+│       ├── App.jsx                # Application state and dashboard
+│       ├── components/
+│       │   ├── LocationSearch.jsx # Autocomplete location search
+│       │   └── Map.jsx            # Leaflet map, routes and hazard circles
+│       └── App.css                # Application styling
+├── data/
+│   └── labels/
+│       └── waterlogging_reports.csv
+├── docs/
+│   └── label_log.md               # Data-label research and caveats
+├── ml/
+│   └── models/
+│       ├── baseline_models.py
+│       └── waterlogging_rf_baseline.joblib
+├── notebooks/                     # Rainfall, roads, elevation and model analysis
+├── scripts/
+│   └── routing.py                 # NetworkX/OSMnx routing experiments
+├── src/
+│   ├── features.py
+│   ├── collection/                # Data collection utilities
+│   └── label_checks.py
+├── tests/
+│   ├── test_features.py
+│   └── test_model.py
+├── requirements.txt
+└── LICENSE
+```
+
+## How It Works
+
+1. The user searches for an origin and destination or places a destination marker on the map.
+2. The frontend sends the coordinates, rainfall value and optional custom locations to the Flask API.
+3. The backend calculates:
+   - Haversine straight-line distance
+   - Estimated direct-route distance
+   - Estimated alternative-route distance
+   - Waterlogging risk
+   - Travel estimates
+   - Flooded-segment count
+   - Maximum estimated water depth
+4. The API returns a direct route and a generated detour.
+5. The React frontend overlays both routes, start/destination markers and reported hazard areas on Leaflet.
+6. If the backend cannot be reached, the frontend calculates a local fallback route and renders the result.
+
+The route geometries are generated from coordinate waypoints. They are not confirmed road-network paths and do not include live traffic or road closures.
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10 or later
+- Node.js and npm
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/ausaafffff/AquaRoute-AI.git
+cd AquaRoute-AI
+```
+
+### 2. Set up the backend
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python app.py
+```
+
+The Flask service starts on `http://localhost:5000`.
+
+To deactivate the virtual environment later:
+
+```bash
+deactivate
+```
+
+### Windows activation
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+### 3. Start the frontend
+
+Open another terminal:
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Open the URL printed by Vite, normally `http://localhost:5173`.
+
+The frontend uses `VITE_API_URL` when it is configured. Otherwise, it defaults to:
+
+```text
+http://localhost:5000/api
+```
+
+To create a production frontend build:
+
+```bash
+npm run build
+npm run preview
+```
+
+## API Reference
+
+### `GET /api/health`
+
+Returns the status of the Flask service.
+
+```json
+{
+  "status": "online",
+  "service": "AquaRoute-AI Backend"
+}
+```
+
+### `GET /api/locations`
+
+Returns the built-in Lucknow locations with IDs, coordinates and elevation values.
+
+### `POST /api/route`
+
+Calculates direct and alternate route estimates.
+
+Example request:
+
+```json
+{
+  "startId": "charbagh",
+  "endId": "gomti_nagar",
+  "rainfallMm": 40,
+  "customStart": null,
+  "customEnd": null
+}
+```
+
+Supported fields:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `startId` | string | Built-in location ID used when `customStart` is absent |
+| `endId` | string | Built-in location ID used when `customEnd` is absent |
+| `rainfallMm` | number | Simulated rainfall in millimetres |
+| `customStart` | object | Custom origin containing `lat`, `lng` and optionally `elevation` |
+| `customEnd` | object | Custom destination containing `lat`, `lng` and optionally `elevation` |
+
+Example response fields:
+
+```text
+source
+destination
+rainfall
+defaultRoute
+safeRoute
+```
+
+Each route contains:
+
+```text
+path
+distanceKm
+etaMins
+riskLevel
+floodedSegments
+waterDepthMaxCm / riskReductionPct
+```
+
+Paths are arrays of `[latitude, longitude]` coordinate pairs.
+
+### Local API checks
+
+```bash
+curl http://localhost:5000/api/health
+curl http://localhost:5000/api/locations
+```
+
+## Data and Model Notes
+
+- The API includes 22 configured Lucknow locations.
+- The repository documents 18 waterlogging-zone records.
+- The frontend has its own copy of locations and hazard-zone data.
+- The optional Random Forest artifact is stored at `ml/models/waterlogging_rf_baseline.joblib`.
+- The Flask API sends elevation, rainfall and a fixed third feature into the model.
+- If the artifact is unavailable or incompatible, the API uses an elevation/rainfall fallback formula.
+- The frontend fallback uses separate distance, delay and risk calculations.
+- `docs/label_log.md` contains project-specific label sources and methodological notes.
+- `tests/test_model.py` contains a separate FastAPI prototype and is not the main Flask service.
+
+## Development
+
+Run Python feature tests:
+
+```bash
+python -m pytest tests/test_features.py
+```
+
+Run frontend checks:
+
+```bash
+cd client
+npm run lint
+npm run build
+```
+
+## Limitations
+
+- Search results and map geometry depend on external public services.
+- Custom geocoded locations receive an assumed elevation rather than terrain-derived elevation.
+- Live weather, live road closures and live traffic are not integrated.
+- The frontend does not remove the built-in preset catalogue entirely; presets remain as local search matches and fallback locations.
+- The route lines are illustrative and may not follow actual roads.
+- The optional model, feature conventions and historical labels require validation before real use.
+- Results are not official flood warnings or emergency-routing information.
+
+## License
+
+This project is distributed under the [MIT License](LICENSE).
+
+## Authors
+
+**Ausaaf Siddiqui** and **Pawan Pandey**
+
+Final Year BCA students specializing in Data Science and Artificial Intelligence from Shri Ramswaroop Memorial University. AquaRoute-AI was developed as a university IBM project and combines their interests in AI, geospatial analysis and urban mobility.
 
 ## Contents
 
