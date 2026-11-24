@@ -7,6 +7,27 @@ AquaRoute-AI is a university IBM project that explores AI and geospatial methods
 
 > **Prototype notice:** AquaRoute-AI is an academic demonstration, not an emergency service or real-time navigation system. Estimates and generated route paths should not be used for travel decisions without checking current official advisories and road conditions.
 
+## Introduction
+
+Urban flooding and waterlogging can disrupt transportation, increase travel risks, and limit access to essential areas. AquaRoute-AI is a research-oriented web application that combines machine learning concepts, elevation data, rainfall simulation, and geospatial visualization to raise awareness of potential waterlogging risks.
+
+The project currently demonstrates two estimated routing options:
+
+- A direct route between selected locations.
+- A flood-aware alternative that considers elevation and simulated rainfall.
+
+## What Makes AquaRoute AIUseful?
+
+AquaRoute-AI provides an accessible prototype for exploring waterlogging risk during urban travel planning.
+
+- Combines artificial intelligence with geospatial risk analysis.
+- Presents 22 configured hotspots across Lucknow.
+- Supports both predefined locations and custom map points.
+- Allows users to adjust rainfall conditions interactively.
+- Compares route distance, estimated travel time, and risk indicators.
+- Runs a React interface alongside a FastAPI backend.
+- Includes fallback routing calculations when the API is unavailable.
+
 ## Features
 
 - Compare a direct route with an estimated flood-aware alternative.
@@ -17,6 +38,15 @@ AquaRoute-AI is a university IBM project that explores AI and geospatial methods
 - Visualize waterlogging zones and route summaries.
 - Fall back to client-side calculations when the API is unavailable.
 
+## How It Works
+
+1. The user selects a start point and destination, or places custom points on the map.
+2. The frontend sends the route parameters to the FastAPI backend.
+3. The backend estimates route risk using elevation, rainfall, and the available machine learning model.
+4. The application returns direct and flood-aware route estimates.
+5. React-Leaflet renders the points, route geometry, and waterlogging context on the map.
+6. If the backend is unavailable, the frontend uses its client-side fallback calculations.
+
 ## Technology
 
 | Area | Technologies |
@@ -26,7 +56,7 @@ AquaRoute-AI is a university IBM project that explores AI and geospatial methods
 | Machine learning | scikit-learn, pandas, NumPy, Joblib |
 | Geospatial analysis | Jupyter Notebook, OSMnx, NetworkX, GeoPandas |
 
-## Repository Structure
+## Project Structure
 
 ```text
 .
@@ -68,7 +98,7 @@ python -m venv .venv
 source .venv/bin/activate
 
 # Windows PowerShell
-# .venv\Scripts\Activate.ps1
+.venv\Scripts\Activate.ps1
 
 python -m pip install --upgrade pip
 pip install -r requirements.txt
@@ -105,7 +135,25 @@ npm run build
 npm run preview
 ```
 
-## API
+## Available Scripts
+
+### Backend
+
+```bash
+python app.py
+python -m pytest tests/test_features.py
+```
+
+### Frontend
+
+```bash
+npm run dev
+npm run lint
+npm run build
+npm run preview
+```
+
+## API Overview
 
 ### `GET /api/health`
 
@@ -162,6 +210,14 @@ npm run lint
 npm run build
 ```
 
+## Deployment
+
+The live frontend is available at:
+
+https://aqua-route-ai.vercel.app/
+
+When deploying, configure `VITE_API_URL` for a production FastAPI endpoint. The frontend and backend can be hosted separately.
+
 ## Data and Model Notes
 
 - The API contains 22 verified Lucknow hotspots and elevation values.
@@ -171,6 +227,32 @@ npm run build
 - Live weather, traffic, road closures, and official flood alerts are not integrated.
 - Historical labels and model behavior should be independently validated before research or operational use.
 
+## Limitations
+
+- This project is an academic prototype, not an emergency or real-time navigation system.
+- Route geometry is illustrative and not verified against road-network routing results.
+- The application does not integrate live weather, traffic, road closures, or official flood alerts.
+- Risk estimates depend on simulated rainfall and available elevation data.
+- Model predictions and historical waterlogging labels require further validation.
+- Estimates and generated paths should not be used for travel decisions without checking current official advisories and road conditions.
+
+## Contributing
+
+Contributions that improve documentation, testing, data quality, model validation, and geospatial analysis are welcome.
+
+Before submitting a contribution:
+
+1. Fork the repository.
+2. Create a descriptive feature or fix branch.
+3. Run the relevant backend and frontend checks.
+4. Submit a pull request with a clear summary and testing details.
+
+## Security
+
+Do not submit sensitive information, personal location data, API keys, or production credentials in issues or pull requests.
+
+If a security concern is discovered, report it privately to the repository maintainers rather than publishing it in a public issue.
+
 ## License
 
 Released under the [MIT License](LICENSE).
@@ -178,3 +260,9 @@ Released under the [MIT License](LICENSE).
 ## Authors
 
 Developed by **Ausaaf Siddiqui** and **Pawan Pandey**, Final Year BCA students specializing in Data Science and Artificial Intelligence at Shri Ramswaroop Memorial University, as a university IBM project.
+
+## Live Demo
+
+Try AquaRoute-AI at:
+
+https://aqua-route-ai.vercel.app/
