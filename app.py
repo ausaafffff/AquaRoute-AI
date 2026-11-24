@@ -1,14 +1,29 @@
-# app.py
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional, Dict, Any
 import os
 import math
 import joblib
 import numpy as np
+import uvicorn
 
-app = Flask(__name__)
-# Enable CORS for Vite frontend running on localhost:5173
-CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:5173"])
+# Initialize FastAPI App
+app = FastAPI(
+    title="AquaRoute-AI API",
+    description="Lucknow Waterlogging Prediction & Resilient Alternate Routing Engine",
+    version="1.0.0"
+)
+
+# Enable CORS for Vite frontend (Localhost & Production Vercel)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Paths to models and data
 MODEL_PATH = os.path.join("ml", "models", "waterlogging_rf_baseline.joblib")
@@ -99,35 +114,41 @@ def predict_waterlogging_risk(elevation, rainfall_mm):
     risk_score = (rainfall_mm * 0.75) + elevation_penalty
     return min(1.0, max(0.05, risk_score / 100.0))
 
-@app.route('/', methods=['GET'])
+# Request payload validation schema
+class RouteRequest(BaseModel):
+    startId: Optional[str] = 'charbagh'
+    endId: Optional[str] = 'gomti_nagar'
+    rainfallMm: Optional[float] = 40.0
+    customStart: Optional[Dict[str, Any]] = None
+    customEnd: Optional[Dict[str, Any]] = None
+
+@app.get('/')
 def root():
-    return jsonify({
+    return {
         'status': 'online',
+        'framework': 'FastAPI + Uvicorn (Production)',
         'message': 'AquaRoute-AI Backend is running',
         'endpoints': {
             'health': '/api/health',
             'locations': '/api/locations',
-            'route': '/api/route'
+            'route': '/api/route',
+            'docs': '/docs'
         }
-    })
-@app.route('/api/health', methods=['GET'])
+    }
+
+@app.get('/api/health')
 def health_check():
-    return jsonify({'status': 'online', 'service': 'AquaRoute-AI Backend'})
+    return {'status': 'online', 'service': 'AquaRoute-AI Backend'}
 
-@app.route('/api/locations', methods=['GET'])
+@app.get('/api/locations')
 def get_locations():
-    return jsonify([{'id': k, **v} for k, v in LUCKNOW_HOTSPOTS.items()])
+    return [{'id': k, **v} for k, v in LUCKNOW_HOTSPOTS.items()]
 
-@app.route('/api/route', methods=['POST'])
-def calculate_route():
-    data = request.get_json() or {}
-    start_id = data.get('startId', 'charbagh')
-    end_id = data.get('endId', 'gomti_nagar')
-    rainfall_mm = float(data.get('rainfallMm', 40))
-
+@app.post('/api/route')
+def calculate_route(payload: RouteRequest):
     # Resolve coordinates
-    start_pt = data.get('customStart') or LUCKNOW_HOTSPOTS.get(start_id, LUCKNOW_HOTSPOTS['charbagh'])
-    end_pt = data.get('customEnd') or LUCKNOW_HOTSPOTS.get(end_id, LUCKNOW_HOTSPOTS['gomti_nagar'])
+    start_pt = payload.customStart or LUCKNOW_HOTSPOTS.get(payload.startId, LUCKNOW_HOTSPOTS['charbagh'])
+    end_pt = payload.customEnd or LUCKNOW_HOTSPOTS.get(payload.endId, LUCKNOW_HOTSPOTS['gomti_nagar'])
 
     start_lat, start_lng = start_pt['lat'], start_pt['lng']
     end_lat, end_lng = end_pt['lat'], end_pt['lng']
@@ -139,13 +160,13 @@ def calculate_route():
 
     # Risk and flood predictions
     avg_elevation = (start_pt.get('elevation', 117.0) + end_pt.get('elevation', 117.0)) / 2.0
-    risk_prob = predict_waterlogging_risk(avg_elevation, rainfall_mm)
+    risk_prob = predict_waterlogging_risk(avg_elevation, payload.rainfallMm)
     flooded_count = int(np.ceil(risk_prob * (default_dist_km / 2.3)))
-    water_depth = int(risk_prob * rainfall_mm * 0.9)
+    water_depth = int(risk_prob * payload.rainfallMm * 0.9)
 
     # Dynamic travel durations
     normal_drive_mins = int((default_dist_km / 28.0) * 60)
-    delay_mins = int(flooded_count * 8 + (rainfall_mm / 10.0) * 2.5)
+    delay_mins = int(flooded_count * 8 + (payload.rainfallMm / 10.0) * 2.5)
     default_eta = normal_drive_mins + delay_mins
     safe_eta = int((safe_dist_km / 38.0) * 60) + 3
 
@@ -170,10 +191,10 @@ def calculate_route():
         [end_lat, end_lng]
     ]
 
-    return jsonify({
+    return {
         'source': start_pt,
         'destination': end_pt,
-        'rainfall': rainfall_mm,
+        'rainfall': payload.rainfallMm,
         'defaultRoute': {
             'path': direct_path,
             'distanceKm': default_dist_km,
@@ -190,9 +211,10 @@ def calculate_route():
             'floodedSegments': 0,
             'riskReductionPct': int(max(70, min(97, (1.0 - (risk_prob * 0.15)) * 100)))
         }
-    })
+    }
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    print(f" AquaRoute AI Server running on port {port}")
-    app.run(host='0.0.0.0', port=port)
+    print(f" AquaRoute AI Server starting with Uvicorn on port {port}")
+    # Running via `python app.py` will now boot Uvicorn safely
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
