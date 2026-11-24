@@ -157,10 +157,10 @@ python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-python app.py
+uvicorn app:app
 ```
 
-The Flask service starts on `http://localhost:5000`.
+The Uvicorn service starts on `http://127.0.0.1:8000 `.
 
 To deactivate the virtual environment later:
 
