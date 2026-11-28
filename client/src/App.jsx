@@ -290,8 +290,11 @@ export default function App() {
 
         <main className="map-section">
           <MapView
+            start={startPoint}
+            destination={endPoint}
             routeData={routeData}
             showZones={showZones}
+            showHazards={showZones}
             rainIntensity={rainIntensity}
             onMapClick={handleMapClick}
           />

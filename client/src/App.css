@@ -820,3 +820,145 @@ body, html, #root {
   color: #38bdf8;
   border: 1px solid rgba(56, 189, 248, 0.25);
 }
+
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVE STYLES (AquaRoute-AI Mobile Engine)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* Allow natural touch scrolling on mobile */
+  .app-container {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Compact Navbar */
+  .navbar {
+    padding: 10px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    height: auto;
+  }
+
+  .logo-group {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-title {
+    font-size: 1.25rem;
+  }
+
+  /* Hide long tagline on small phones */
+  .brand-subtitle {
+    display: none;
+  }
+
+  /* Wrap telemetry pills cleanly without overflowing */
+  .navbar-stats {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  .telemetry-pill {
+    font-size: 10.5px;
+    padding: 4px 8px;
+  }
+
+  .github-pill span {
+    display: none; /* Icon-only on mobile */
+  }
+
+  /* Stacked Layout: Map at the Top, Controls Scroll Underneath */
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+    flex: none;
+  }
+
+  .map-section {
+    height: 48vh;
+    min-height: 300px;
+    width: 100%;
+    position: relative;
+    order: 1; /* Map appears first on mobile */
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+    padding: 14px 12px 32px;
+    order: 2; /* Parameters scroll underneath */
+    box-sizing: border-box;
+  }
+
+  /* Scenario chips wrap in 2 columns */
+  .preset-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .preset-chips button {
+    flex: 1 1 calc(50% - 6px);
+    font-size: 11px;
+    padding: 8px 10px;
+    text-align: center;
+    min-height: 38px;
+  }
+
+  /* Telemetry Analysis Triad Cards */
+  .metrics-triad {
+    gap: 6px;
+  }
+
+  .metric-cell {
+    padding: 8px 4px;
+  }
+
+  .metric-val {
+    font-size: 1.15rem;
+  }
+
+  .metric-lbl {
+    font-size: 9px;
+  }
+
+  /* Touch targets minimum 44px */
+  .btn-glow-primary,
+  .btn-ghost-secondary {
+    min-height: 44px;
+    font-size: 13px;
+    width: 100%;
+  }
+
+  .rain-slider-container {
+    padding: 12px 10px;
+  }
+}
+
+/* Extra small screens (iPhone SE, small Androids < 480px) */
+@media (max-width: 480px) {
+  .map-section {
+    height: 42vh;
+    min-height: 260px;
+  }
+
+  .preset-chips button {
+    flex: 1 1 100%; /* Full width buttons */
+  }
+}
